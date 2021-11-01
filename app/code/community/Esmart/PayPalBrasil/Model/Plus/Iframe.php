@@ -134,18 +134,20 @@ class Esmart_PayPalBrasil_Model_Plus_Iframe extends Mage_Payment_Block_Form
      *
      * @return array
      */
-    public function getCustomerInformation($quote = null,$installment = null)
+    public function getCustomerInformation($quote)
     {
+
         /** @var Esmart_PayPalBrasil_Helper_Data $helper */
         $helper = $this->_helper();
 
         /** @var Mage_Sales_Model_Quote $quote */
-        $quote = $helper->getQuote($quote);
+        //$quote = $helper->getQuote($quote);
 
         /**
          * @var Mage_Customer_Model_Customer $customer
          * @var Mage_Sales_Model_Quote_Address|Mage_Customer_Model_Address $address
          */
+
         $customer = $quote->getCustomer();
         $address = $quote->getBillingAddress();
 
@@ -380,8 +382,12 @@ class Esmart_PayPalBrasil_Model_Plus_Iframe extends Mage_Payment_Block_Form
                 ->setAdditionalInformation('paypal_plus_installments', $this->getInstallment())
                 ->save();
 
-        } catch (Exception $e) {
-            throw new Exception("Call createPayment Exception", 1);
+        } catch (PayPal\Exception\PayPalConnectionException $ex) {
+            echo $ex->getCode(); // Prints the Error Code
+            echo $ex->getData(); // Prints the detailed error message
+            die($ex);
+        } catch (Exception $ex) {
+            die($ex);
         }
 
         return $payment;
@@ -524,7 +530,7 @@ class Esmart_PayPalBrasil_Model_Plus_Iframe extends Mage_Payment_Block_Form
             $objItem->setName('Descontos')
                 ->setCurrency($quote->getBaseCurrencyCode())
                 ->setQuantity(1)
-                ->setPrice($discount);
+                ->setPrice(-$discount);
 
             $itemList->addItem($objItem);
 
@@ -554,6 +560,7 @@ class Esmart_PayPalBrasil_Model_Plus_Iframe extends Mage_Payment_Block_Form
             // append shipping information
             $itemList->setShippingAddress($this->createShippingAddress($quote));
         }
+        Mage::log($itemList, null, 'mylog.log', true);
         return $itemList;
     }
 

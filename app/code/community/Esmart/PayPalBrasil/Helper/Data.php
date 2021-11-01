@@ -470,6 +470,7 @@ JS;
         $website_id = Mage::getModel('core/store')->load($store_id)->getWebsiteId();
 
         $items = $quote->getAllItems();
+        /*
         foreach ($items as $item) {
             if(!empty($item->getAppliedRuleIds())) {
                 foreach(explode(",",$item->getAppliedRuleIds()) as $ruleId){
@@ -494,12 +495,22 @@ JS;
                 }
             }
         }
+        */
+
+        $quote = Mage::getModel('checkout/session')->getQuote();
+        $quoteData = $quote->getData();
+        $grandTotal = $quoteData['grand_total'];
+
+        $discountTotal = 0;
+        foreach ($quote->getAllItems() as $item){
+            $discountTotal += $item->getDiscountAmount();
+        }
 
         if($discount < 0) {
             $discount = $discount * (-1);
         }
 
-        return $discount;
+        return $discountTotal;
     }
 
 }

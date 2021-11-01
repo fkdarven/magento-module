@@ -31,7 +31,8 @@ class Esmart_PayPalBrasil_Model_Installments_Cost extends Mage_Sales_Model_Quote
         if ( ($address->getQuote()->getPayment()->getMethod() == Esmart_PayPalBrasil_Model_Plus::CODE) || ($address instanceof TM_FireCheckout_Model_Quote_Address) ) {
             $payment_id = $payment->getAdditionalInformation('paypal_plus_payment_id');
             $dataDiscount = $this->discountPayPal($payment_id);
-            $discountPayPal = $dataDiscount['discount_amount']['value'];
+            //$discountPayPal = $dataDiscount['discount_amount']['value'];
+            $discountPayPal = '0.00';
 
             if(($dataDiscount == false) || ($discountPayPal == '0.00') ){
                 $address->setEsmartPaypalbrasilDiscountAmount(0);

@@ -68,7 +68,7 @@ class Esmart_PayPalBrasil_ExpressController extends Esmart_PayPalBrasil_Controll
         $quote->getPayment()->unsAdditionalInformation();
         $quote->collectTotals();
 
-        try {
+        //try {
 
             if ($quote->isVirtual()) {
                 $quote->getBillingAddress()->setPaymentMethod(Esmart_PayPalBrasil_Model_Plus::CODE);
@@ -112,12 +112,12 @@ class Esmart_PayPalBrasil_ExpressController extends Esmart_PayPalBrasil_Controll
                     }
                 }
             }
+        
+            $payerInfo   = $model->getCustomerInformation($quote); // LINHA COM ERRO
 
-            $payerInfo   = $model->getCustomerInformation($quote);
-
-            if(!empty($postData['installment'])){
-                $payerInfo = $model->getCustomerInformationInstallments($quote,$postData['installment'],$payerInfo);
-            }
+              if(!empty($postData['installment'])){
+               $payerInfo = $model->getCustomerInformationInstallments($quote,$postData['installment'],$payerInfo);
+             }
 
             $approvalUrl = $model->getApprovalUrlPaypalPlus();
 
@@ -125,22 +125,23 @@ class Esmart_PayPalBrasil_ExpressController extends Esmart_PayPalBrasil_Controll
             if(empty($data['approvalUrl'])){ throw new Exception('Ocorreu um erro inesperado, tente novamente, caso o problema persista por favor entre em contato.',3); }
             $return     = array('success' => $data);
 
-        } catch (Exception $exception) {
-            $data['invoice_number'] = $quote->getReservedOrderId();
-            Mage::helper('esmart_paypalbrasil')->logException(__FILE__, __CLASS__, __FUNCTION__, __LINE__, self::LOG_FILENAME, null, $data);
+         //}
+                               /* catch (Exception $exception) {
+                                    $data['invoice_number'] = $quote->getReservedOrderId();
+                                    Mage::helper('esmart_paypalbrasil')->logException(__FILE__, __CLASS__, __FUNCTION__, __LINE__, self::LOG_FILENAME, null, $data);
 
-            $general_message = 'Prezado cliente, favor preencher e/ou validar os dados dos passos anteriores antes de selecionar a Forma de Pagamento. Caso o problema persista por favor entre em contato.';
+                                    $general_message = 'Prezado cliente, favor preencher e/ou validar os dados dos passos anteriores antes de selecionar a Forma de Pagamento. Caso o problema persista por favor entre em contato.';
 
-            if ($exception->getCode() == 3){
-                $general_message = $exception->getMessage();
-            }
+                                    if ($exception->getCode() == 3){
+                                        $general_message = $exception->getMessage();
+                                    }
 
-            $return = array(
-                'error'  => $exception->getCode(),
-                'message' => $general_message
-            );
-        }
-
+                                    $return = array(
+                                        'error'  => $exception->getCode(),
+                                        'message' => $general_message,
+                                    );
+                                } /*
+                        */
         Esmart_PayPalBrasil_Model_Debug::writeLog();
 
         $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($return));
